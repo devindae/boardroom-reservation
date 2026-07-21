@@ -6,7 +6,7 @@ import { isValidCompanyEmail } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Mail, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Mail, CheckCircle2, AlertCircle, Key } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -57,6 +57,29 @@ export default function LoginPage() {
     }
   }
 
+  const handleDemoSignIn = async () => {
+    setIsLoading(true)
+    setErrorMessage('')
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: 'demo@cba.lk',
+        password: 'Password123!',
+      })
+
+      if (error) {
+        setErrorMessage(error.message)
+        toast.error(error.message)
+      } else {
+        toast.success('Signed in as Demo User')
+        window.location.href = '/'
+      }
+    } catch {
+      setErrorMessage('An unexpected error occurred.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-[400px]">
@@ -92,44 +115,65 @@ export default function LoginPage() {
               </Button>
             </div>
           ) : (
-            <form onSubmit={handleSendMagicLink} className="space-y-5">
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@cba.lk"
-                    className="pl-10 h-11 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-lg"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value)
-                      if (errorMessage) setErrorMessage('')
-                    }}
-                    disabled={isLoading}
-                    required
-                  />
+            <div className="space-y-6">
+              <form onSubmit={handleSendMagicLink} className="space-y-5">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                    Email
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="name@cba.lk"
+                      className="pl-10 h-11 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-lg"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        if (errorMessage) setErrorMessage('')
+                      }}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
                 </div>
+
+                {errorMessage && (
+                  <div className="p-3 rounded-lg bg-destructive/5 text-destructive text-sm flex items-start gap-2.5 border border-destructive/10">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm rounded-lg shadow-none"
+                >
+                  {isLoading ? 'Sending...' : 'Sign In'}
+                </Button>
+              </form>
+
+              {/* Divider */}
+              <div className="relative flex items-center justify-center my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-border"></div>
+                </div>
+                <span className="relative px-3 text-xs uppercase bg-card text-muted-foreground">Or</span>
               </div>
 
-              {errorMessage && (
-                <div className="p-3 rounded-lg bg-destructive/5 text-destructive text-sm flex items-start gap-2.5 border border-destructive/10">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
+              {/* Demo Sign In Button */}
               <Button
-                type="submit"
+                onClick={handleDemoSignIn}
                 disabled={isLoading}
-                className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm rounded-lg shadow-none"
+                variant="outline"
+                className="w-full h-11 border-border text-foreground hover:bg-secondary hover:text-foreground font-medium text-sm rounded-lg shadow-none flex items-center justify-center gap-2"
               >
-                {isLoading ? 'Sending...' : 'Sign In'}
+                <Key className="w-4 h-4 text-muted-foreground" />
+                Sign In as Demo User
               </Button>
-            </form>
+            </div>
           )}
         </div>
 
