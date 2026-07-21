@@ -6,25 +6,28 @@ import { isValidCompanyEmail } from '@/lib/validation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Mail, CheckCircle2, AlertCircle, Key } from 'lucide-react'
+import { Mail, Lock, User, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
   const supabase = createClient()
 
-  const handleSendMagicLink = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage('')
 
     const cleanEmail = email.trim().toLowerCase()
 
-    if (!cleanEmail) {
-      setErrorMessage('Email address is required.')
+    if (!cleanEmail || !password) {
+      setErrorMessage('Please fill in all fields.')
       return
     }
 
@@ -33,48 +36,56 @@ export default function LoginPage() {
       return
     }
 
-    setIsLoading(true)
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: cleanEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) {
-        toast.error(error.message)
-        setErrorMessage(error.message)
-      } else {
-        setIsSubmitted(true)
-      }
-    } catch {
-      toast.error('An unexpected error occurred.')
-      setErrorMessage('An unexpected error occurred.')
-    } finally {
-      setIsLoading(false)
+    if (isSignUp && !name.trim()) {
+      setErrorMessage('Please enter your full name.')
+      return
     }
-  }
 
-  const handleDemoSignIn = async () => {
+    if (password.length < 6) {
+      setErrorMessage('Password must be at least 6 characters.')
+      return
+    }
+
     setIsLoading(true)
-    setErrorMessage('')
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: 'demo@cba.lk',
-        password: 'Password123!',
-      })
 
-      if (error) {
-        setErrorMessage(error.message)
-        toast.error(error.message)
+    try {
+      if (isSignUp) {
+        // Sign Up
+        const { error } = await supabase.auth.signUp({
+          email: cleanEmail,
+          password: password,
+          options: {
+            data: {
+              full_name: name.trim(),
+            },
+          },
+        })
+
+        if (error) {
+          setErrorMessage(error.message)
+          toast.error(error.message)
+        } else {
+          setIsSuccess(true)
+          toast.success('Registration successful!')
+        }
       } else {
-        toast.success('Signed in as Demo User')
-        window.location.href = '/'
+        // Sign In
+        const { error } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password: password,
+        })
+
+        if (error) {
+          setErrorMessage(error.message)
+          toast.error(error.message)
+        } else {
+          toast.success('Successfully signed in!')
+          window.location.href = '/'
+        }
       }
     } catch {
       setErrorMessage('An unexpected error occurred.')
+      toast.error('An unexpected error occurred.')
     } finally {
       setIsLoading(false)
     }
@@ -93,30 +104,65 @@ export default function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-card rounded-xl border border-border p-8 space-y-8">
-          {isSubmitted ? (
+        <div className="bg-card rounded-xl border border-border p-8 space-y-6 shadow-xl shadow-slate-100 dark:shadow-none">
+          {isSuccess ? (
             <div className="text-center space-y-5 py-2">
               <div className="mx-auto w-14 h-14 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
                 <CheckCircle2 className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-foreground">Check your email</h3>
+                <h3 className="text-lg font-semibold text-foreground">Registration Successful</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  We&apos;ve sent a sign-in link to<br/>
-                  <span className="font-medium text-foreground">{email}</span>
+                  Your account has been created. You can now sign in with your email and password.
                 </p>
               </div>
               <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground text-sm"
-                onClick={() => setIsSubmitted(false)}
+                variant="outline"
+                className="w-full h-11 border-border text-foreground hover:bg-secondary rounded-lg"
+                onClick={() => {
+                  setIsSuccess(false)
+                  setIsSignUp(false)
+                  setPassword('')
+                }}
               >
-                Use a different email
+                Go to Sign In
               </Button>
             </div>
           ) : (
             <div className="space-y-6">
-              <form onSubmit={handleSendMagicLink} className="space-y-5">
+              <div className="space-y-1.5 text-center">
+                <h2 className="text-xl font-semibold text-foreground">
+                  {isSignUp ? 'Create an Account' : 'Welcome Back'}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {isSignUp ? 'Sign up with your corporate email' : 'Sign in to reserve meeting rooms'}
+                </p>
+              </div>
+
+              <form onSubmit={handleAuth} className="space-y-4">
+                {/* Full Name (Sign Up only) */}
+                {isSignUp && (
+                  <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <Label htmlFor="name" className="text-sm font-medium text-foreground">
+                      Full Name
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="name"
+                        type="text"
+                        placeholder="John Doe"
+                        className="pl-10 h-11 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-lg"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        disabled={isLoading}
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Email */}
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email
@@ -139,6 +185,29 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {/* Password */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-10 h-11 bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring rounded-lg"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value)
+                        if (errorMessage) setErrorMessage('')
+                      }}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
+                </div>
+
                 {errorMessage && (
                   <div className="p-3 rounded-lg bg-destructive/5 text-destructive text-sm flex items-start gap-2.5 border border-destructive/10">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -151,28 +220,23 @@ export default function LoginPage() {
                   disabled={isLoading}
                   className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm rounded-lg shadow-none"
                 >
-                  {isLoading ? 'Sending...' : 'Sign In'}
+                  {isLoading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
                 </Button>
               </form>
 
-              {/* Divider */}
-              <div className="relative flex items-center justify-center my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border"></div>
-                </div>
-                <span className="relative px-3 text-xs uppercase bg-card text-muted-foreground">Or</span>
+              {/* Toggle Sign In / Sign Up */}
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(!isSignUp)
+                    setErrorMessage('')
+                  }}
+                  className="text-sm font-medium text-primary hover:underline transition-all"
+                >
+                  {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                </button>
               </div>
-
-              {/* Demo Sign In Button */}
-              <Button
-                onClick={handleDemoSignIn}
-                disabled={isLoading}
-                variant="outline"
-                className="w-full h-11 border-border text-foreground hover:bg-secondary hover:text-foreground font-medium text-sm rounded-lg shadow-none flex items-center justify-center gap-2"
-              >
-                <Key className="w-4 h-4 text-muted-foreground" />
-                Sign In as Demo User
-              </Button>
             </div>
           )}
         </div>
