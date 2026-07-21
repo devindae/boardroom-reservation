@@ -351,7 +351,7 @@ export default function AdminPage() {
                               }
                             }}
                           >
-                            <SelectTrigger className="h-8 w-28 text-xs bg-background">
+                            <SelectTrigger className="h-8 w-32 text-xs bg-background">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -493,7 +493,7 @@ export default function AdminPage() {
                 Assigned Role
               </Label>
               <Select value={inviteRole} onValueChange={(v) => { if (v === 'user' || v === 'admin' || v === 'super_admin') setInviteRole(v as 'user'|'admin'|'super_admin') }}>
-                <SelectTrigger id="inviteRole">
+                <SelectTrigger id="inviteRole" className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
