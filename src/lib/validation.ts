@@ -10,21 +10,36 @@ export function isValidCompanyEmail(email: string): boolean {
 }
 
 /**
- * Checks if a date falls on a weekend (Saturday or Sunday)
+ * Checks if a date falls on a weekend in Asia/Colombo (Saturday or Sunday)
  */
 export function isWeekend(date: Date): boolean {
-  const day = date.getDay()
-  return day === 0 || day === 6 // 0 = Sunday, 6 = Saturday
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Colombo',
+    weekday: 'short',
+  })
+  const dayStr = formatter.format(date) // "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+  return dayStr === 'Sat' || dayStr === 'Sun'
 }
 
 /**
- * Checks if a booking time range is within official working hours (8:30 AM - 5:00 PM)
+ * Checks if a booking time range is within official working hours in Asia/Colombo (8:30 AM - 5:00 PM)
  */
 export function isWithinWorkingHours(startDate: Date, endDate: Date): boolean {
-  const startHour = startDate.getHours()
-  const startMin = startDate.getMinutes()
-  const endHour = endDate.getHours()
-  const endMin = endDate.getMinutes()
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Colombo',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  })
+
+  // Format returns e.g. "10:30" or "08:30" or "17:00"
+  const startParts = formatter.format(startDate).split(':').map(Number)
+  const endParts = formatter.format(endDate).split(':').map(Number)
+
+  const startHour = startParts[0]
+  const startMin = startParts[1]
+  const endHour = endParts[0]
+  const endMin = endParts[1]
 
   const startTotalMinutes = startHour * 60 + startMin
   const endTotalMinutes = endHour * 60 + endMin
@@ -69,8 +84,10 @@ export function validateBooking(
     return { isValid: false, error: 'Bookings are only allowed Monday to Friday.' }
   }
 
-  // Check same-day condition
-  if (start.toDateString() !== end.toDateString()) {
+  // Check same-day condition in Asia/Colombo
+  const startDayStr = start.toLocaleDateString('en-US', { timeZone: 'Asia/Colombo' })
+  const endDayStr = end.toLocaleDateString('en-US', { timeZone: 'Asia/Colombo' })
+  if (startDayStr !== endDayStr) {
     return { isValid: false, error: 'Bookings must start and end on the same day.' }
   }
 
