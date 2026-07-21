@@ -92,7 +92,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
+    <div className="flex-1 w-full flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-[400px]">
         {/* Logo */}
         <div className="flex justify-center mb-10">
@@ -241,9 +241,6 @@ export default function LoginPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Ceylon Business Appliances 2026
-        </p>
       </div>
     </div>
   )
