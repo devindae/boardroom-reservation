@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
     if (inviteError) {
       // Fallback: If user already exists or auth admin is not configured, insert profile row
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await adminClient
         .from('profiles')
         .upsert(
           [

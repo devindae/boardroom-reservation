@@ -29,7 +29,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid role specified' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
+    const adminClient = createAdminClient()
+
+    const { data, error } = await adminClient
       .from('profiles')
       .update({ role })
       .eq('id', id)
