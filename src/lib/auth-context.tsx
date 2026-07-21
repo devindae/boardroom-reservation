@@ -110,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
     setSession(null)
     setProfile(null)
+    window.location.href = '/login'
   }
 
   const isAdmin = profile?.role === 'admin'
