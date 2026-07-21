@@ -15,7 +15,7 @@ export const WORKING_HOURS = {
 export const WORKING_DAYS = [1, 2, 3, 4, 5]
 
 export const DEFAULT_ROOM_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  Boardroom: {
+  'Executive Meeting Room': {
     bg: '#6F1258',
     border: '#530D42',
     text: '#FFFFFF',

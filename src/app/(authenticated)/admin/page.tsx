@@ -39,7 +39,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 
 export default function AdminPage() {
-  const { profile, isAdmin, isLoading: authLoading } = useAuth()
+  const { profile, isAdmin, isSuperAdmin, isLoading: authLoading } = useAuth()
 
   const [users, setUsers] = useState<Profile[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
@@ -49,7 +49,7 @@ export default function AdminPage() {
   const [isInviteOpen, setIsInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteName, setInviteName] = useState('')
-  const [inviteRole, setInviteRole] = useState<'user' | 'admin'>('user')
+  const [inviteRole, setInviteRole] = useState<'user' | 'admin' | 'super_admin'>('user')
   const [inviteLoading, setInviteLoading] = useState(false)
 
   // Add/Edit Room Modal state
@@ -123,7 +123,7 @@ export default function AdminPage() {
   }
 
   // Handle Toggle User Role
-  const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
+  const handleRoleChange = async (userId: string, newRole: 'user' | 'admin' | 'super_admin') => {
     try {
       const res = await fetch(`/api/users/${userId}`, {
         method: 'PUT',
@@ -285,12 +285,14 @@ export default function AdminPage() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="users" className="w-full">
+      <Tabs defaultValue={isSuperAdmin ? 'users' : 'rooms'} className="w-full">
         <TabsList className="bg-muted p-1 border border-border">
-          <TabsTrigger value="users" className="gap-2 text-xs font-semibold">
-            <Users className="w-4 h-4 text-[#6F1258] dark:text-[#FF8A3D]" />
-            User Management ({users.length})
-          </TabsTrigger>
+          {isSuperAdmin && (
+            <TabsTrigger value="users" className="gap-2 text-xs font-semibold">
+              <Users className="w-4 h-4 text-[#6F1258] dark:text-[#FF8A3D]" />
+              User Management ({users.length})
+            </TabsTrigger>
+          )}
           <TabsTrigger value="rooms" className="gap-2 text-xs font-semibold">
             <DoorClosed className="w-4 h-4 text-[#313773] dark:text-indigo-400" />
             Meeting Rooms ({rooms.length})
@@ -298,7 +300,8 @@ export default function AdminPage() {
         </TabsList>
 
         {/* User Management Tab */}
-        <TabsContent value="users" className="space-y-4 pt-4">
+        {isSuperAdmin && (
+          <TabsContent value="users" className="space-y-4 pt-4">
           <Card className="border border-border shadow-xs">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <div>
@@ -354,6 +357,7 @@ export default function AdminPage() {
                             <SelectContent>
                               <SelectItem value="user">User</SelectItem>
                               <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="super_admin">Super Admin</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -381,6 +385,7 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
         {/* Room Management Tab */}
         <TabsContent value="rooms" className="space-y-4 pt-4">
@@ -487,13 +492,14 @@ export default function AdminPage() {
               <Label htmlFor="inviteRole" className="text-xs font-semibold">
                 Assigned Role
               </Label>
-              <Select value={inviteRole} onValueChange={(v) => { if (v === 'user' || v === 'admin') setInviteRole(v) }}>
+              <Select value={inviteRole} onValueChange={(v) => { if (v === 'user' || v === 'admin' || v === 'super_admin') setInviteRole(v as 'user'|'admin'|'super_admin') }}>
                 <SelectTrigger id="inviteRole">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">User (Book & edit own)</SelectItem>
-                  <SelectItem value="admin">Administrator (Full Access)</SelectItem>
+                  <SelectItem value="admin">Administrator (Manage Rooms)</SelectItem>
+                  <SelectItem value="super_admin">Super Admin (Full Access)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -529,7 +535,7 @@ export default function AdminPage() {
               </Label>
               <Input
                 id="roomName"
-                placeholder="e.g. Executive Boardroom"
+                placeholder="e.g. Executive Meeting Room"
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
                 required

@@ -242,7 +242,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          Meeting Room Reservation System · CBA
+          Ceylon Business Appliances 2026
         </p>
       </div>
     </div>

@@ -10,6 +10,7 @@ interface AuthContextType {
   session: Session | null
   profile: Profile | null
   isAdmin: boolean
+  isSuperAdmin: boolean
   isLoading: boolean
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   isAdmin: false,
+  isSuperAdmin: false,
   isLoading: true,
   signOut: async () => {},
   refreshProfile: async () => {},
@@ -110,7 +112,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = '/login'
   }
 
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
+  const isSuperAdmin = profile?.role === 'super_admin'
 
   return (
     <AuthContext.Provider
@@ -119,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         profile,
         isAdmin,
+        isSuperAdmin,
         isLoading,
         signOut,
         refreshProfile,

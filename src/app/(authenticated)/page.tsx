@@ -21,7 +21,7 @@ const CalendarView = dynamic(
 )
 
 const MOCK_ROOMS: Room[] = [
-  { id: '11111111-1111-1111-1111-111111111111', name: 'Boardroom', location: 'Upper Floor' },
+  { id: '11111111-1111-1111-1111-111111111111', name: 'Executive Meeting Room', location: 'Upper Floor' },
   { id: '22222222-2222-2222-2222-222222222222', name: 'Meeting Room', location: 'First Floor' },
 ]
 

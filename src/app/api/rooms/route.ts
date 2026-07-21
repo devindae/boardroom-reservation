@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 // Default mock rooms fallback if database is empty/unconnected
 const DEFAULT_ROOMS = [
-  { id: '11111111-1111-1111-1111-111111111111', name: 'Boardroom', location: 'Upper Floor', created_at: new Date().toISOString() },
+  { id: '11111111-1111-1111-1111-111111111111', name: 'Executive Meeting Room', location: 'Upper Floor', created_at: new Date().toISOString() },
   { id: '22222222-2222-2222-2222-222222222222', name: 'Meeting Room', location: 'First Floor', created_at: new Date().toISOString() },
 ]
 
