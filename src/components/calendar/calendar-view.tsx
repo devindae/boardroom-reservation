@@ -252,23 +252,29 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
     <div className="max-w-[1400px] mx-auto px-5 sm:px-8 space-y-5 pt-6 pb-8">
       {/* Unified Toolbar — single row, no card borders */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-        {/* Left: Title & Date */}
+        {/* Left: Date & Time */}
         <div className="flex items-center gap-5">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {currentTitle || 'Schedule'}
-            </h1>
-            {liveDate && (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-muted-foreground">{liveDate}</span>
-                <span className="text-sm font-medium text-foreground tabular-nums">{liveTime}</span>
-              </div>
+            {liveDate ? (
+              <>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground tabular-nums">
+                  {liveTime}
+                </h1>
+                <p className="text-sm font-medium text-muted-foreground mt-0.5">
+                  {liveDate}
+                </p>
+              </>
+            ) : (
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                Schedule
+              </h1>
             )}
           </div>
         </div>
 
-        {/* Right: Navigation + View Controls */}
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Right: Navigation + View Controls + Date Range */}
+        <div className="flex flex-col items-end gap-1.5 mt-4 lg:mt-0">
+          <div className="flex items-center gap-3 flex-wrap">
           {/* Nav arrows + Today */}
           <div className="flex items-center gap-1">
             <Button
@@ -330,6 +336,11 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
             <Label htmlFor="my-bookings" className="text-xs font-medium text-muted-foreground cursor-pointer whitespace-nowrap">
               My bookings
             </Label>
+          </div>
+          </div>
+          {/* Week/Month Details */}
+          <div className="text-sm font-semibold text-primary mr-1 bg-primary/5 px-3 py-1 rounded-full">
+            {currentTitle}
           </div>
         </div>
       </div>
