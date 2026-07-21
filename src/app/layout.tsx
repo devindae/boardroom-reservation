@@ -10,8 +10,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'Internal Meeting Room Reservation System',
-  description: 'Simple, modern, and responsive Outlook-inspired internal company meeting room reservation app.',
-  keywords: ['Meeting Room', 'Reservation', 'Boardroom', 'Calendar', 'Outlook Scheduling'],
+  description: 'Official corporate meeting room and boardroom reservation portal for Ceylon Business Appliances (Pvt) Ltd. Schedule and manage your bookings efficiently.',
+  keywords: ['CBA', 'Ceylon Business Appliances', 'Meeting Room', 'Reservation', 'Boardroom'],
   authors: [{ name: 'Internal Corporate Services' }],
 }
 
