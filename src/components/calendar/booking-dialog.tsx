@@ -190,7 +190,7 @@ export function BookingDialog({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[480px] p-0 border-0 shadow-2xl overflow-hidden rounded-2xl bg-card">
+        <DialogContent className="sm:max-w-[480px] p-0 border-0 shadow-2xl overflow-y-auto max-h-[90vh] rounded-2xl bg-card">
           {/* Subtle Top Accent Line */}
           <div className="h-1.5 w-full bg-gradient-to-r from-primary to-accent" />
           
