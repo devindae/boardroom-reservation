@@ -231,7 +231,7 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
 
     return {
       id: res.id,
-      title: `${res.title} (${roomName})`,
+      title: res.title,
       start: res.start_time,
       end: res.end_time,
       roomId: res.room_id,
@@ -241,6 +241,11 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
       backgroundColor: colorTheme.bg,
       borderColor: colorTheme.border,
       textColor: colorTheme.text,
+      extendedProps: {
+        roomName,
+        organizerName,
+        notes: res.notes || '',
+      },
     }
   })
 
@@ -413,9 +418,14 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
           expandRows={true}
           nowIndicator={true}
           timeZone="local"
+          slotEventOverlap={false}
+          eventMaxStack={2}
           eventContent={(eventInfo: any) => (
-            <div className="p-1 text-xs leading-tight flex flex-col h-full overflow-hidden">
-              <div className="font-medium truncate">
+            <div className="px-1.5 py-1 text-xs leading-tight flex flex-col h-full overflow-hidden">
+              <div className="font-semibold truncate text-foreground">
+                {eventInfo.event.extendedProps.roomName && (
+                  <span className="opacity-60 font-medium">({eventInfo.event.extendedProps.roomName}) </span>
+                )}
                 {eventInfo.event.title}
               </div>
               <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
