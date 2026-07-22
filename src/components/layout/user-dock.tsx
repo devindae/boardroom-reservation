@@ -34,7 +34,7 @@ export function UserDock() {
 
         {/* User info */}
         <div className="flex flex-col leading-none min-w-0">
-          <span className="text-sm font-semibold text-foreground truncate max-w-[130px]">
+          <span className="text-sm font-semibold text-foreground whitespace-nowrap">
             {profile?.name || 'User'}
           </span>
           <span className="text-[11px] text-muted-foreground mt-0.5 capitalize">
