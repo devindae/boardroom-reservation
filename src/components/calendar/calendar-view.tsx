@@ -226,7 +226,11 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
   const events: CalendarEvent[] = reservations.map((res) => {
     const room = res.room || rooms.find((r) => r.id === res.room_id)
     const roomName = room?.name || 'Meeting Room'
-    const colorTheme = DEFAULT_ROOM_COLORS[roomName] || DEFAULT_ROOM_COLORS.default
+    // Use room's saved color, or fall back to name-based default
+    const roomHex = room?.color
+    const colorTheme = roomHex
+      ? { bg: roomHex, border: roomHex, text: '#FFFFFF' }
+      : DEFAULT_ROOM_COLORS[roomName] || DEFAULT_ROOM_COLORS.default
     const organizerName = res.profile?.name || res.profile?.email?.split('@')[0] || 'Employee'
 
     return {

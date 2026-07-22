@@ -12,6 +12,7 @@ export interface Room {
   id: string
   name: string
   location: string
+  color?: string
   created_at?: string
 }
 

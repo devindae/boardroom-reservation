@@ -57,6 +57,7 @@ export default function AdminPage() {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [roomName, setRoomName] = useState('')
   const [roomLocation, setRoomLocation] = useState('')
+  const [roomColor, setRoomColor] = useState('#6F1258')
   const [roomLoading, setRoomLoading] = useState(false)
 
   const fetchData = useCallback(async () => {
@@ -180,7 +181,7 @@ export default function AdminPage() {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: roomName.trim(), location: roomLocation.trim() }),
+        body: JSON.stringify({ name: roomName.trim(), location: roomLocation.trim(), color: roomColor }),
       })
 
       if (res.ok) {
@@ -189,6 +190,7 @@ export default function AdminPage() {
         setSelectedRoom(null)
         setRoomName('')
         setRoomLocation('')
+        setRoomColor('#6F1258')
         fetchData()
       } else {
         const data = await res.json()
@@ -223,6 +225,7 @@ export default function AdminPage() {
     setSelectedRoom(null)
     setRoomName('')
     setRoomLocation('')
+    setRoomColor('#6F1258')
     setIsRoomDialogOpen(true)
   }
 
@@ -230,6 +233,7 @@ export default function AdminPage() {
     setSelectedRoom(room)
     setRoomName(room.name)
     setRoomLocation(room.location)
+    setRoomColor(room.color || '#6F1258')
     setIsRoomDialogOpen(true)
   }
 
@@ -414,7 +418,7 @@ export default function AdminPage() {
                   <Card key={r.id} className="border border-border/80 p-4 relative flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full bg-[#6F1258]" />
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: r.color || '#6F1258' }} />
                         <h3 className="font-bold text-base text-foreground">{r.name}</h3>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
@@ -553,6 +557,31 @@ export default function AdminPage() {
                 onChange={(e) => setRoomLocation(e.target.value)}
                 required
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="roomColor" className="text-xs font-semibold">
+                Calendar Colour
+              </Label>
+              <div className="flex items-center gap-3">
+                <input
+                  id="roomColor"
+                  type="color"
+                  value={roomColor}
+                  onChange={(e) => setRoomColor(e.target.value)}
+                  className="h-10 w-14 rounded-lg border border-border cursor-pointer p-0.5 bg-transparent"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-mono text-foreground">{roomColor}</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Click to change colour</span>
+                </div>
+                <div
+                  className="ml-auto h-8 px-3 rounded-full flex items-center text-xs font-semibold text-white shadow-sm"
+                  style={{ backgroundColor: roomColor }}
+                >
+                  Preview
+                </div>
+              </div>
             </div>
 
             <DialogFooter className="pt-2">

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { name, location } = body
+    const { name, location, color } = body
 
     if (!name || !location) {
       return NextResponse.json({ error: 'Room name and location are required' }, { status: 400 })
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from('rooms')
-      .insert([{ name, location }])
+      .insert([{ name, location, color: color || null }])
       .select()
       .single()
 

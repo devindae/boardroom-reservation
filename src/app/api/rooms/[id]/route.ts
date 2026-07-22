@@ -15,11 +15,11 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { name, location } = body
+    const { name, location, color } = body
 
     const { data, error } = await supabase
       .from('rooms')
-      .update({ name, location })
+      .update({ name, location, color: color || null })
       .eq('id', id)
       .select()
       .single()
