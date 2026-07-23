@@ -22,14 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body className="h-full font-sans bg-background text-foreground">
         <Providers>
-          <div className="flex-1 flex flex-col">
-            {children}
-          </div>
-          <footer className="w-full py-4 text-center text-xs text-muted-foreground mt-auto shrink-0 border-t border-border/40">
-            Ceylon Business Appliances (Pvt) Ltd. © 2026
-          </footer>
+          {children}
         </Providers>
       </body>
     </html>

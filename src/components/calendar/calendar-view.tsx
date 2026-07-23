@@ -7,25 +7,26 @@ import { useAuth } from '@/lib/auth-context'
 import { DEFAULT_ROOM_COLORS, WORKING_HOURS, TIME_ZONE } from '@/lib/constants'
 import { BookingDialog } from './booking-dialog'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { ChevronLeft, ChevronRight, User, Clock } from 'lucide-react'
+import { ChevronLeft, ChevronRight, User } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CalendarViewProps {
   rooms: Room[]
   initialReservations?: ReservationWithDetails[]
   searchQuery?: string
+  selectedRoomId?: string
+  onRoomSelect?: (id: string) => void
 }
 
-export function CalendarView({ rooms, initialReservations = [], searchQuery = '' }: CalendarViewProps) {
+export function CalendarView({ rooms, initialReservations = [], searchQuery = '', selectedRoomId: externalRoomId, onRoomSelect }: CalendarViewProps) {
   const { profile, isAdmin } = useAuth()
   const calendarRef = useRef<any>(null)
 
   const [mounted, setMounted] = useState(false)
   const [currentView, setCurrentView] = useState<'timeGridDay' | 'timeGridWeek' | 'dayGridMonth'>('timeGridWeek')
-  const [selectedRoomId, setSelectedRoomId] = useState<string>('all')
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(externalRoomId ?? 'all')
   const [myBookingsOnly, setMyBookingsOnly] = useState(false)
   const [reservations, setReservations] = useState<ReservationWithDetails[]>(initialReservations)
   const [isLoading, setIsLoading] = useState(false)
@@ -101,6 +102,13 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
       fetchReservations()
     }
   }, [fetchReservations, mounted])
+
+  // Sync room selection from sidebar
+  useEffect(() => {
+    if (externalRoomId !== undefined) {
+      setSelectedRoomId(externalRoomId)
+    }
+  }, [externalRoomId])
 
   // Change Calendar View
   const handleViewChange = (viewName: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
@@ -258,7 +266,7 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto px-5 sm:px-8 space-y-5 pt-6 pb-8">
+    <div className="w-full px-5 space-y-4 pt-4 pb-6">
       {/* Unified Toolbar — single row, no card borders */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         {/* Left: Date & Time */}
@@ -352,36 +360,6 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
             {currentTitle}
           </div>
         </div>
-      </div>
-
-      {/* Room Filter Tabs */}
-      <div className="flex items-center gap-3">
-        <Tabs
-          value={selectedRoomId}
-          onValueChange={setSelectedRoomId}
-          className="w-auto"
-        >
-          <TabsList className="bg-secondary h-9 rounded-lg p-0.5 gap-0.5">
-            <TabsTrigger value="all" className="text-xs px-4 h-8 rounded-md font-medium data-[state=active]:shadow-sm">
-              All Rooms
-            </TabsTrigger>
-            {rooms.map((r) => (
-              <TabsTrigger key={r.id} value={r.id} className="text-xs px-4 h-8 rounded-md font-medium data-[state=active]:shadow-sm">
-                <span
-                  className="w-2 h-2 rounded-full mr-2 inline-block shrink-0"
-                  style={{
-                    backgroundColor:
-                      DEFAULT_ROOM_COLORS[r.name]?.bg || DEFAULT_ROOM_COLORS.default.bg,
-                  }}
-                />
-                {r.name}
-                <span className="text-muted-foreground font-normal ml-1.5 hidden sm:inline">
-                  · {r.location}
-                </span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
       </div>
 
       {/* Calendar Grid */}

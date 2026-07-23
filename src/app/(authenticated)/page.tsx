@@ -1,10 +1,9 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect } from 'react'
-
 import dynamic from 'next/dynamic'
 import { Room, ReservationWithDetails } from '@/lib/types'
-import { Navbar } from '@/components/layout/navbar'
+import { Sidebar } from '@/components/layout/sidebar'
 import { BookingDialog } from '@/components/calendar/booking-dialog'
 import { toast } from 'sonner'
 
@@ -29,6 +28,7 @@ export default function HomePage() {
   const [rooms, setRooms] = useState<Room[]>(MOCK_ROOMS)
   const [reservations, setReservations] = useState<ReservationWithDetails[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedRoomId, setSelectedRoomId] = useState('all')
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false)
 
   useEffect(() => {
@@ -59,28 +59,33 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Navbar */}
-      <Navbar
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Left Sidebar */}
+      <Sidebar
+        rooms={rooms}
+        selectedRoomId={selectedRoomId}
+        onRoomSelect={setSelectedRoomId}
         onSearch={setSearchQuery}
         onNewBookingClick={() => setIsNewBookingOpen(true)}
       />
 
-      {/* Main Calendar Section — padding handled inside CalendarView */}
-      <CalendarView
-        rooms={rooms}
-        initialReservations={reservations}
-        searchQuery={searchQuery}
-      />
+      {/* Main Content */}
+      <main className="flex-1 ml-[220px] overflow-y-auto flex flex-col">
+        <CalendarView
+          rooms={rooms}
+          initialReservations={reservations}
+          searchQuery={searchQuery}
+          selectedRoomId={selectedRoomId}
+          onRoomSelect={setSelectedRoomId}
+        />
+      </main>
 
-      {/* Quick Booking Dialog triggered from Navbar */}
       <BookingDialog
         isOpen={isNewBookingOpen}
         onClose={() => setIsNewBookingOpen(false)}
         rooms={rooms}
         initialValues={null}
         onSave={() => {
-          // Trigger refresh inside calendar component or re-fetch
           window.dispatchEvent(new Event('reservation-updated'))
         }}
       />
