@@ -18,7 +18,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { room_id, title, notes, start_time, end_time } = body
+    const { room_id, title, notes, division, contact_number, start_time, end_time } = body
 
     // Validate business rules
     const validation = validateBooking(start_time, end_time)
@@ -48,6 +48,8 @@ export async function PUT(
         room_id,
         title: title.trim(),
         notes: notes?.trim() || '',
+        division: division?.trim() || '',
+        contact_number: contact_number?.trim() || '',
         start_time,
         end_time,
       })

@@ -53,13 +53,21 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { room_id, title, notes, start_time, end_time } = body
+    const { room_id, title, notes, division, contact_number, start_time, end_time } = body
 
     if (!room_id || !title || !start_time || !end_time) {
       return NextResponse.json(
         { error: 'Missing required booking fields (room, title, start_time, end_time)' },
         { status: 400 }
       )
+    }
+
+    if (!division?.trim()) {
+      return NextResponse.json({ error: 'Division is required.' }, { status: 400 })
+    }
+
+    if (!contact_number?.trim()) {
+      return NextResponse.json({ error: 'Contact number is required.' }, { status: 400 })
     }
 
     // 1. Validate business rules (working hours, weekends, past dates)
@@ -94,6 +102,8 @@ export async function POST(request: Request) {
           user_id: user.id,
           title: title.trim(),
           notes: notes?.trim() || '',
+          division: division.trim(),
+          contact_number: contact_number.trim(),
           start_time,
           end_time,
         },

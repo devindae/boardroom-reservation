@@ -32,7 +32,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Trash2, AlertCircle, CalendarDays, Clock, MapPin, AlignLeft } from 'lucide-react'
+import { Trash2, AlertCircle, CalendarDays, Clock, MapPin, AlignLeft, Building2, Phone } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface BookingDialogProps {
@@ -69,6 +69,8 @@ export function BookingDialog({
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [notes, setNotes] = useState('')
+  const [division, setDivision] = useState('')
+  const [contactNumber, setContactNumber] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
@@ -85,6 +87,8 @@ export function BookingDialog({
       setStartTime(initialValues.startTime || '09:00')
       setEndTime(initialValues.endTime || '10:00')
       setNotes(initialValues.notes || '')
+      setDivision((initialValues as any).division || '')
+      setContactNumber((initialValues as any).contact_number || '')
     } else {
       setTitle('')
       setRoomId(rooms[0]?.id ?? '')
@@ -92,6 +96,8 @@ export function BookingDialog({
       setStartTime('09:00')
       setEndTime('10:00')
       setNotes('')
+      setDivision('')
+      setContactNumber('')
     }
     setErrorMessage('')
   }, [initialValues, rooms, isOpen])
@@ -102,6 +108,16 @@ export function BookingDialog({
 
     if (!title.trim()) {
       setErrorMessage('Please enter a meeting title.')
+      return
+    }
+
+    if (!division.trim()) {
+      setErrorMessage('Please enter your division / department.')
+      return
+    }
+
+    if (!contactNumber.trim()) {
+      setErrorMessage('Please enter a contact number.')
       return
     }
 
@@ -127,6 +143,8 @@ export function BookingDialog({
         room_id: roomId,
         title: title.trim(),
         notes: notes.trim(),
+        division: division.trim(),
+        contact_number: contactNumber.trim(),
         start_time: new Date(startIso).toISOString(),
         end_time: new Date(endIso).toISOString(),
       }
@@ -322,6 +340,41 @@ export function BookingDialog({
                 <span className="text-sm font-semibold text-foreground">
                   {profile?.name || 'Current Employee'}
                 </span>
+              </div>
+            </div>
+
+            {/* Division & Contact Number Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="division" className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <Building2 className="h-4 w-4 text-muted-foreground" />
+                  Division <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="division"
+                  placeholder="e.g. Finance, IT, HR"
+                  value={division}
+                  onChange={(e) => setDivision(e.target.value)}
+                  disabled={!canModify || isLoading}
+                  className="h-11 bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:bg-background rounded-xl transition-all shadow-sm"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="contactNumber" className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  Contact No. <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="contactNumber"
+                  placeholder="e.g. 0771234567"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  disabled={!canModify || isLoading}
+                  className="h-11 bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:bg-background rounded-xl transition-all shadow-sm"
+                  required
+                />
               </div>
             </div>
 

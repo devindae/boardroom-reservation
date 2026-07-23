@@ -22,6 +22,8 @@ export interface Reservation {
   user_id: string
   title: string
   notes?: string | null
+  division?: string | null
+  contact_number?: string | null
   start_time: string
   end_time: string
   created_at?: string
