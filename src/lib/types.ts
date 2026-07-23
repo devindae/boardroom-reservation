@@ -46,4 +46,5 @@ export interface CalendarEvent {
   backgroundColor?: string
   borderColor?: string
   textColor?: string
+  extendedProps?: any
 }

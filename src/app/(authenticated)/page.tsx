@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
@@ -63,6 +63,7 @@ export default function HomePage() {
       {/* Left Sidebar */}
       <Sidebar
         rooms={rooms}
+        reservations={reservations}
         selectedRoomId={selectedRoomId}
         onRoomSelect={setSelectedRoomId}
         onSearch={setSearchQuery}

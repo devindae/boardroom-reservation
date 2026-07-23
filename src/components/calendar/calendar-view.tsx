@@ -83,7 +83,6 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
       let url = '/api/reservations?'
       if (selectedRoomId !== 'all') url += `roomId=${selectedRoomId}&`
       if (myBookingsOnly && profile?.id) url += `userId=${profile.id}&`
-      if (searchQuery) url += `query=${encodeURIComponent(searchQuery)}`
 
       const res = await fetch(url)
       if (res.ok) {
@@ -95,7 +94,7 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
     } finally {
       setIsLoading(false)
     }
-  }, [selectedRoomId, myBookingsOnly, profile?.id, searchQuery])
+  }, [selectedRoomId, myBookingsOnly, profile?.id])
 
   useEffect(() => {
     if (mounted) {
@@ -257,9 +256,24 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
         roomName,
         organizerName,
         notes: res.notes || '',
+        division: (res as any).division || '',
+        contact_number: (res as any).contact_number || '',
       },
     }
   })
+
+  // Client-side multi-field search filter
+  const filteredEvents = searchQuery.trim().length >= 1
+    ? events.filter((e) => {
+        const q = searchQuery.toLowerCase().trim()
+        return (
+          e.title?.toLowerCase().includes(q) ||
+          (e.extendedProps as any)?.roomName?.toLowerCase().includes(q) ||
+          (e.extendedProps as any)?.organizerName?.toLowerCase().includes(q) ||
+          (e.extendedProps as any)?.division?.toLowerCase().includes(q)
+        )
+      })
+    : events
 
   if (!mounted) {
     return <div className="h-96 flex items-center justify-center text-muted-foreground">Loading Calendar...</div>
@@ -394,7 +408,7 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
           eventClick={handleEventClick}
           eventDrop={handleEventDropOrResize}
           eventResize={handleEventDropOrResize}
-          events={events}
+          events={filteredEvents}
           height="auto"
           contentHeight={600}
           expandRows={true}

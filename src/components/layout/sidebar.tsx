@@ -1,6 +1,6 @@
-﻿'use client'
+'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
@@ -8,12 +8,13 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Room } from '@/lib/types'
+import { Room, ReservationWithDetails } from '@/lib/types'
 import { DEFAULT_ROOM_COLORS } from '@/lib/constants'
-import { Search, Plus, Settings, LogOut, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Plus, Settings, LogOut, ChevronLeft, ChevronRight, Calendar, Clock, MapPin, User, X } from 'lucide-react'
 
 interface SidebarProps {
   rooms: Room[]
+  reservations?: ReservationWithDetails[]
   selectedRoomId: string
   onRoomSelect: (id: string) => void
   onSearch: (q: string) => void
@@ -22,6 +23,7 @@ interface SidebarProps {
 
 export function Sidebar({
   rooms,
+  reservations = [],
   selectedRoomId,
   onRoomSelect,
   onSearch,
@@ -30,6 +32,8 @@ export function Sidebar({
   const { profile, isAdmin, signOut } = useAuth()
   const pathname = usePathname()
   const [searchVal, setSearchVal] = useState('')
+  const [showResults, setShowResults] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
 
   // Mini calendar state
   const today = new Date()
@@ -41,9 +45,44 @@ export function Sidebar({
     : profile?.email ? profile.email.slice(0, 2).toUpperCase() : 'US'
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchVal(e.target.value)
-    onSearch(e.target.value)
+    const val = e.target.value
+    setSearchVal(val)
+    onSearch(val)
+    setShowResults(val.trim().length >= 1)
   }
+
+  const clearSearch = () => {
+    setSearchVal('')
+    onSearch('')
+    setShowResults(false)
+  }
+
+  // Search results — filter across title, room name, organizer, division
+  const searchResults = searchVal.trim().length >= 1
+    ? reservations.filter((r) => {
+        const q = searchVal.toLowerCase().trim()
+        const roomName = r.room?.name || rooms.find(rm => rm.id === r.room_id)?.name || ''
+        const organizer = r.profile?.name || r.profile?.email?.split('@')[0] || ''
+        const division = (r as any).division || ''
+        return (
+          r.title?.toLowerCase().includes(q) ||
+          roomName.toLowerCase().includes(q) ||
+          organizer.toLowerCase().includes(q) ||
+          division.toLowerCase().includes(q)
+        )
+      }).slice(0, 6)
+    : []
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
 
   // Mini calendar helpers
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -62,10 +101,20 @@ export function Sidebar({
     else setCalMonth(m => m + 1)
   }
 
-  // Build calendar grid
   const calCells: (number | null)[] = []
   for (let i = 0; i < firstDay; i++) calCells.push(null)
   for (let d = 1; d <= daysInMonth; d++) calCells.push(d)
+
+  const formatTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: true
+    })
+  }
+  const formatDate = (iso: string) => {
+    return new Date(iso).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric'
+    })
+  }
 
   return (
     <aside className="w-[220px] min-w-[220px] h-screen fixed left-0 top-0 z-30 flex flex-col bg-card border-r border-border/60 overflow-y-auto">
@@ -78,17 +127,88 @@ export function Sidebar({
         </div>
       </Link>
 
-      <div className="px-3 space-y-5 flex-1">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search meetings..."
-            value={searchVal}
-            onChange={handleSearch}
-            className="pl-8 h-8 text-xs bg-secondary border-0 rounded-lg focus-visible:ring-1"
-          />
+      <div className="px-3 space-y-4 flex-1">
+        {/* Search with dropdown */}
+        <div className="relative" ref={searchRef}>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search meetings..."
+              value={searchVal}
+              onChange={handleSearch}
+              onFocus={() => searchVal.trim().length >= 1 && setShowResults(true)}
+              className="pl-8 pr-7 h-8 text-xs bg-secondary border-0 rounded-lg focus-visible:ring-1"
+            />
+            {searchVal && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Search Results Dropdown */}
+          {showResults && (
+            <div className="absolute top-full left-0 right-0 mt-1.5 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden max-h-[340px] overflow-y-auto">
+              {searchResults.length === 0 ? (
+                <div className="px-3 py-5 text-center">
+                  <Search className="w-6 h-6 text-muted-foreground/40 mx-auto mb-1.5" />
+                  <p className="text-xs text-muted-foreground">No meetings found</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">Try a different name or room</p>
+                </div>
+              ) : (
+                <>
+                  <div className="px-3 py-2 border-b border-border/50">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {searchResults.map((r) => {
+                    const roomName = r.room?.name || rooms.find(rm => rm.id === r.room_id)?.name || 'Room'
+                    const roomColor = r.room?.color || DEFAULT_ROOM_COLORS[roomName]?.bg || DEFAULT_ROOM_COLORS.default.bg
+                    const organizer = r.profile?.name || r.profile?.email?.split('@')[0] || 'Employee'
+                    return (
+                      <div
+                        key={r.id}
+                        className="px-3 py-2.5 hover:bg-secondary/60 cursor-pointer border-b border-border/30 last:border-0 transition-colors"
+                        onClick={() => setShowResults(false)}
+                      >
+                        {/* Color bar + title */}
+                        <div className="flex items-start gap-2">
+                          <div
+                            className="w-1 h-full min-h-[32px] rounded-full shrink-0 mt-0.5"
+                            style={{ backgroundColor: roomColor }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                              {r.title}
+                            </p>
+                            <div className="flex items-center gap-1 mt-1">
+                              <MapPin className="w-2.5 h-2.5 text-muted-foreground shrink-0" />
+                              <span className="text-[10px] text-muted-foreground truncate">{roomName}</span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <User className="w-2.5 h-2.5 text-muted-foreground shrink-0" />
+                              <span className="text-[10px] text-muted-foreground truncate">{organizer}</span>
+                            </div>
+                            <div className="flex items-center gap-1 mt-0.5 text-[10px] text-muted-foreground">
+                              <Calendar className="w-2.5 h-2.5 shrink-0" />
+                              <span>{formatDate(r.start_time)}</span>
+                              <Clock className="w-2.5 h-2.5 shrink-0 ml-1" />
+                              <span>{formatTime(r.start_time)} – {formatTime(r.end_time)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* New Meeting Button */}
@@ -172,12 +292,17 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Bottom: User + Controls */}
+      {/* Bottom: Footer + User + Controls */}
       <div className="px-3 py-4 border-t border-border/60 space-y-3 shrink-0">
+        {/* Footer branding */}
+        <p className="text-[9px] text-muted-foreground/60 text-center leading-tight">
+          Ceylon Business Appliances (Pvt) Ltd. © 2026
+        </p>
+
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {isAdmin && (
-            <Link href={pathname === '/admin' ? '/' : '/admin'} title={pathname === '/admin' ? 'Back to Calendar' : 'Admin Console'} className="flex-1">
+            <Link href={pathname === '/admin' ? '/' : '/admin'} className="flex-1">
               <button className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 pathname === '/admin'
                   ? 'bg-primary text-primary-foreground'
