@@ -174,7 +174,12 @@ export function Sidebar({
                       <div
                         key={r.id}
                         className="px-3 py-2.5 hover:bg-secondary/60 cursor-pointer border-b border-border/30 last:border-0 transition-colors"
-                        onClick={() => setShowResults(false)}
+                        onClick={() => {
+                          setShowResults(false)
+                          window.dispatchEvent(new CustomEvent('focus-reservation', { 
+                            detail: { id: r.id, date: r.start_time }
+                          }))
+                        }}
                       >
                         {/* Color bar + title */}
                         <div className="flex items-start gap-2">

@@ -109,6 +109,33 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
     }
   }, [externalRoomId])
 
+  // Listen for search result clicks
+  useEffect(() => {
+    const handleFocusReservation = (e: any) => {
+      const { id, date } = e.detail
+      
+      // Navigate calendar to that date
+      if (calendarRef.current) {
+        const api = calendarRef.current.getApi()
+        api.gotoDate(date)
+        if (currentView === 'dayGridMonth') {
+          api.changeView('timeGridWeek')
+          setCurrentView('timeGridWeek')
+        }
+      }
+
+      // Open the booking dialog
+      const existing = reservations.find((r) => r.id === id)
+      if (existing) {
+        setDialogInitialValues(existing)
+        setIsDialogOpen(true)
+      }
+    }
+
+    window.addEventListener('focus-reservation', handleFocusReservation)
+    return () => window.removeEventListener('focus-reservation', handleFocusReservation)
+  }, [reservations, currentView])
+
   // Change Calendar View
   const handleViewChange = (viewName: 'timeGridDay' | 'timeGridWeek' | 'dayGridMonth') => {
     setCurrentView(viewName)
