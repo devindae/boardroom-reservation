@@ -124,12 +124,6 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
         }
       }
 
-      // Open the booking dialog
-      const existing = reservations.find((r) => r.id === id)
-      if (existing) {
-        setDialogInitialValues(existing)
-        setIsDialogOpen(true)
-      }
     }
 
     window.addEventListener('focus-reservation', handleFocusReservation)
