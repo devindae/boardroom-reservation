@@ -433,15 +433,34 @@ export function BookingDialog({
                   <Building2 className="h-4 w-4 text-muted-foreground" />
                   Division <span className="text-destructive">*</span>
                 </Label>
-                <Input
-                  id="division"
-                  placeholder="e.g. Finance, IT, HR"
+                <Select
                   value={division}
-                  onChange={(e) => setDivision(e.target.value)}
+                  onValueChange={(val) => val && setDivision(val)}
                   disabled={!canModify || isLoading}
-                  className="h-11 bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:bg-background rounded-xl transition-all shadow-sm"
-                  required
-                />
+                >
+                  <SelectTrigger className="h-11 bg-secondary/50 border-border/50 text-foreground rounded-xl focus:ring-primary focus:bg-background transition-all shadow-sm">
+                    <SelectValue placeholder="Select division" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-border/50 shadow-xl max-h-64">
+                    {[
+                      'Trading',
+                      'Finance',
+                      'EVO Pay',
+                      'University',
+                      'Grab IT',
+                      'IT',
+                      'HR',
+                      'Fintech - Issuance',
+                      'Fintech - Solutions',
+                      'EMD',
+                      'TSD'
+                    ].map((div) => (
+                      <SelectItem key={div} value={div} className="rounded-lg">
+                        {div}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
