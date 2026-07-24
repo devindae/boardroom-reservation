@@ -9,8 +9,7 @@ import { BookingDialog } from './booking-dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { ChevronLeft, ChevronRight, User, Phone, Briefcase } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CalendarViewProps {
@@ -460,47 +459,89 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
           slotEventOverlap={false}
           eventMaxStack={2}
           eventContent={(eventInfo: any) => {
-            const { title, extendedProps } = eventInfo.event
+            const { title, start, end, extendedProps } = eventInfo.event
             const { roomName, organizerName, contact_number, division, notes } = extendedProps
 
+            // Calculate duration in minutes
+            const durationMinutes = start && end ? Math.round((end.getTime() - start.getTime()) / 60000) : 60
+
+            // Format time range string
+            const formatTime = (d: Date | null) => d ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : ''
+            const timeRange = start && end ? `${formatTime(start)} - ${formatTime(end)}` : ''
+
+            // Build native tooltip hover text
+            const tooltipParts = [
+              title,
+              timeRange ? `⏰ ${timeRange}` : null,
+              roomName ? `📍 ${roomName}` : null,
+              organizerName ? `👤 ${organizerName}` : null,
+              division ? `🏢 ${division}` : null,
+              contact_number ? `📞 ${contact_number}` : null,
+              notes ? `📝 ${notes}` : null,
+            ].filter(Boolean)
+
+            const tooltipText = tooltipParts.join('\n')
+
+            // TIER 1: SHORT EVENT (<= 30 mins) -> 1 single line, centered
+            if (durationMinutes <= 30) {
+              return (
+                <div title={tooltipText} className="w-full h-full px-2 flex items-center overflow-hidden cursor-pointer select-none">
+                  <div className="flex items-center gap-1.5 min-w-0 w-full">
+                    <span className="text-xs font-bold truncate leading-none">{title}</span>
+                    {roomName && <span className="text-[10px] opacity-75 truncate leading-none">· {roomName}</span>}
+                  </div>
+                </div>
+              )
+            }
+
+            // TIER 2: MEDIUM EVENT (31 to 60 mins) -> 2 lines
+            if (durationMinutes <= 60) {
+              return (
+                <div title={tooltipText} className="w-full h-full px-2 py-1 flex flex-col justify-center overflow-hidden cursor-pointer select-none">
+                  <span className="text-xs font-bold truncate leading-tight">{title}</span>
+                  <div className="text-[10px] opacity-80 truncate leading-tight mt-0.5 flex items-center gap-1">
+                    {roomName && <span className="truncate">{roomName}</span>}
+                    {roomName && division && <span>·</span>}
+                    {division && <span className="truncate">{division}</span>}
+                  </div>
+                </div>
+              )
+            }
+
+            // TIER 3: LONG EVENT (> 60 mins) -> 3 lines expanded
             return (
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="px-1.5 py-1 text-xs leading-tight flex flex-col h-full overflow-hidden w-full text-left">
-                    <div className="font-semibold truncate text-foreground shrink-0">
-                      {roomName && <span className="opacity-60 font-medium">({roomName}) </span>}
-                      {title}
-                    </div>
-                    {division && (
-                      <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
-                        <Briefcase className="w-2.5 h-2.5 shrink-0" />
-                        <span className="truncate">{division}</span>
-                      </div>
-                    )}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="start" className="w-64 p-3 space-y-2 z-[60]">
-                  <p className="font-semibold text-sm">{title}</p>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    {roomName && <p><span className="font-medium text-foreground">Room:</span> {roomName}</p>}
-                    {organizerName && <p><span className="font-medium text-foreground">Organizer:</span> {organizerName}</p>}
-                    {division && <p><span className="font-medium text-foreground">Division:</span> {division}</p>}
-                    {contact_number && <p><span className="font-medium text-foreground">Contact:</span> {contact_number}</p>}
-                    {notes && (
-                      <div className="pt-2 mt-2 border-t border-border/50">
-                        <p className="font-medium text-foreground mb-1">Notes:</p>
-                        <p className="line-clamp-3">{notes}</p>
-                      </div>
-                    )}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+              <div title={tooltipText} className="w-full h-full px-2 py-1.5 flex flex-col overflow-hidden cursor-pointer select-none">
+                {roomName && (
+                  <span className="text-[9px] font-bold uppercase tracking-wider truncate opacity-75 leading-none mb-1">
+                    {roomName}
+                  </span>
+                )}
+                <span className="text-xs font-bold truncate leading-snug mb-1">
+                  {title}
+                </span>
+                <div className="text-[10px] opacity-85 truncate flex items-center gap-1 mt-auto">
+                  {division && <span className="truncate">{division}</span>}
+                  {division && organizerName && <span>·</span>}
+                  {organizerName && <span className="truncate">{organizerName}</span>}
+                </div>
+              </div>
             )
           }}
           eventDidMount={(info: any) => {
-            const hexColor = info.event.borderColor || '#FF6C0E'
-            info.el.style.setProperty('--fc-event-border-color', hexColor)
-            info.el.style.backgroundColor = `${hexColor}14`
+            const hexColor = info.event.borderColor || '#313773'
+            
+            // Remove FC default styles from outer element
+            info.el.style.backgroundColor = 'transparent'
+            info.el.style.border = 'none'
+
+            const mainEl = info.el.querySelector('.fc-event-main') as HTMLElement | null
+            if (mainEl) {
+              mainEl.style.backgroundColor = `${hexColor}18` // 10% soft tinted fill
+              mainEl.style.borderLeft = `4px solid ${hexColor}`
+              mainEl.style.color = hexColor
+              mainEl.style.borderRadius = '5px'
+              mainEl.style.height = '100%'
+            }
           }}
         />
       </div>
