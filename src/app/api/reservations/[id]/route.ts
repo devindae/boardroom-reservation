@@ -42,6 +42,28 @@ export async function PUT(
       )
     }
 
+    // Check ownership for notifications
+    const { data: existingReservation } = await supabase
+      .from('reservations')
+      .select('user_id, title')
+      .eq('id', id)
+      .single()
+
+    if (existingReservation && existingReservation.user_id !== user.id) {
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single()
+      
+      const adminName = adminProfile?.name || 'Administrator'
+      
+      await supabase.from('notifications').insert({
+        user_id: existingReservation.user_id,
+        message: `Admin ${adminName} modified your booking '${existingReservation.title}'.`,
+      })
+    }
+
     const { data, error } = await supabase
       .from('reservations')
       .update({
@@ -81,6 +103,28 @@ export async function DELETE(
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check ownership for notifications
+    const { data: existingReservation } = await supabase
+      .from('reservations')
+      .select('user_id, title')
+      .eq('id', id)
+      .single()
+
+    if (existingReservation && existingReservation.user_id !== user.id) {
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single()
+      
+      const adminName = adminProfile?.name || 'Administrator'
+      
+      await supabase.from('notifications').insert({
+        user_id: existingReservation.user_id,
+        message: `Admin ${adminName} cancelled your booking '${existingReservation.title}'.`,
+      })
     }
 
     const { error } = await supabase.from('reservations').delete().eq('id', id)

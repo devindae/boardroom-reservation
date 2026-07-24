@@ -48,3 +48,11 @@ export interface CalendarEvent {
   textColor?: string
   extendedProps?: any
 }
+
+export interface AppNotification {
+  id: string
+  user_id: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
