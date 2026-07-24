@@ -155,7 +155,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="w-[220px] min-w-[220px] h-screen fixed left-0 top-0 z-30 flex flex-col bg-card border-r border-border/60 overflow-y-auto">
+    <aside className="w-[220px] min-w-[220px] h-screen fixed left-0 top-0 z-30 flex flex-col bg-card border-r border-border/60">
       {/* Logo and Notifications Header */}
       <div className="flex items-center justify-between px-4 pt-5 pb-4 shrink-0">
         <Link href="/" className="flex items-center gap-2 group shrink-0">
@@ -209,7 +209,7 @@ export function Sidebar({
         </Popover>
       </div>
 
-      <div className="px-3 space-y-4 flex-1">
+      <div className="px-3 space-y-4 flex-1 overflow-y-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         {/* Search with dropdown */}
         <div className="relative" ref={searchRef}>
           <div className="relative">
@@ -385,12 +385,7 @@ export function Sidebar({
       </div>
 
       {/* Bottom: Footer + User + Controls */}
-      <div className="px-3 py-4 border-t border-border/60 space-y-3 shrink-0">
-        {/* Footer branding */}
-        <p className="text-[9px] text-muted-foreground/60 text-center leading-tight">
-          Ceylon Business Appliances (Pvt) Ltd. © 2026
-        </p>
-
+      <div className="px-3 py-4 border-t border-border/60 bg-secondary/10 space-y-4 mt-auto shrink-0">
         <div className="flex items-center gap-2">
           <ThemeToggle />
           
@@ -398,8 +393,8 @@ export function Sidebar({
             <Link href={pathname === '/admin' ? '/' : '/admin'} className="flex-1">
               <button className={`w-full flex items-center justify-center gap-2 px-2.5 h-8 rounded-lg text-xs font-medium transition-all ${
                 pathname === '/admin'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/80'
               }`}>
                 <Settings className="w-3.5 h-3.5 shrink-0" />
                 {pathname === '/admin' ? 'Calendar' : 'Admin'}
@@ -409,15 +404,15 @@ export function Sidebar({
         </div>
 
         {/* User */}
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-8 w-8 border-2 border-primary/20 shrink-0">
-            <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs">
+        <div className="flex items-center gap-2.5 p-2 rounded-xl bg-background border border-border/50 shadow-sm">
+          <Avatar className="h-8 w-8 shrink-0">
+            <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs border border-primary/20">
               {userInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-foreground truncate">{profile?.name || 'User'}</p>
-            <p className="text-[10px] text-muted-foreground capitalize">{profile?.role?.replace('_', ' ') || 'user'}</p>
+            <p className="text-[10px] text-muted-foreground capitalize font-medium">{profile?.role?.replace('_', ' ') || 'user'}</p>
           </div>
           <button
             onClick={() => signOut()}
@@ -427,6 +422,11 @@ export function Sidebar({
             <LogOut className="w-3.5 h-3.5" />
           </button>
         </div>
+
+        {/* Footer branding */}
+        <p className="text-[10px] text-muted-foreground/50 text-center font-medium tracking-tight">
+          CBA (Pvt) Ltd. © 2026
+        </p>
       </div>
     </aside>
   )
