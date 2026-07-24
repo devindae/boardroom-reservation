@@ -72,13 +72,21 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 ml-[220px] overflow-y-auto flex flex-col">
-        <CalendarView
-          rooms={rooms}
-          initialReservations={reservations}
-          searchQuery={searchQuery}
-          selectedRoomId={selectedRoomId}
-          onRoomSelect={setSelectedRoomId}
-        />
+        <div className="flex-1 flex flex-col">
+          <CalendarView
+            rooms={rooms}
+            initialReservations={reservations}
+            searchQuery={searchQuery}
+            selectedRoomId={selectedRoomId}
+            onRoomSelect={setSelectedRoomId}
+          />
+        </div>
+        {/* Main Footer */}
+        <div className="py-4 text-center border-t border-border/50 shrink-0">
+          <p className="text-xs font-medium text-muted-foreground">
+            Ceylon Business Appliances (Pvt) Ltd. © 2026
+          </p>
+        </div>
       </main>
 
       <BookingDialog

@@ -266,8 +266,8 @@ export default function AdminPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <main className="flex-1 overflow-y-auto">
-      <div className="max-w-7xl mx-auto space-y-6 pb-12 px-6 pt-6">
+      <main className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-1 max-w-7xl mx-auto w-full space-y-6 pb-12 px-6 pt-6">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -594,6 +594,12 @@ export default function AdminPage() {
         </DialogContent>
       </Dialog>
     </div>
+        {/* Main Footer */}
+        <div className="py-4 text-center border-t border-border/50 shrink-0 w-full">
+          <p className="text-xs font-medium text-muted-foreground">
+            Ceylon Business Appliances (Pvt) Ltd. © 2026
+          </p>
+        </div>
       </main>
     </div>
   )

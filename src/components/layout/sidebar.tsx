@@ -423,10 +423,6 @@ export function Sidebar({
           </button>
         </div>
 
-        {/* Footer branding */}
-        <p className="text-[10px] text-muted-foreground/50 text-center font-medium tracking-tight">
-          CBA (Pvt) Ltd. © 2026
-        </p>
       </div>
     </aside>
   )
