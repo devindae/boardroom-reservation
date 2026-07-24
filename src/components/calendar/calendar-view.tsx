@@ -9,6 +9,7 @@ import { BookingDialog } from './booking-dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChevronLeft, ChevronRight, User, Phone, Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -458,32 +459,44 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
           timeZone="local"
           slotEventOverlap={false}
           eventMaxStack={2}
-          eventContent={(eventInfo: any) => (
-            <div className="px-1.5 py-1 text-xs leading-tight flex flex-col h-full overflow-hidden">
-              <div className="font-semibold truncate text-foreground shrink-0">
-                {eventInfo.event.extendedProps.roomName && (
-                  <span className="opacity-60 font-medium">({eventInfo.event.extendedProps.roomName}) </span>
-                )}
-                {eventInfo.event.title}
-              </div>
-              <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
-                <User className="w-2.5 h-2.5 shrink-0" />
-                <span className="truncate">{eventInfo.event.extendedProps.organizerName}</span>
-              </div>
-              {eventInfo.event.extendedProps.contact_number && (
-                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
-                  <Phone className="w-2.5 h-2.5 shrink-0" />
-                  <span className="truncate">{eventInfo.event.extendedProps.contact_number}</span>
-                </div>
-              )}
-              {eventInfo.event.extendedProps.division && (
-                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
-                  <Briefcase className="w-2.5 h-2.5 shrink-0" />
-                  <span className="truncate">{eventInfo.event.extendedProps.division}</span>
-                </div>
-              )}
-            </div>
-          )}
+          eventContent={(eventInfo: any) => {
+            const { title, extendedProps } = eventInfo.event
+            const { roomName, organizerName, contact_number, division, notes } = extendedProps
+
+            return (
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="px-1.5 py-1 text-xs leading-tight flex flex-col h-full overflow-hidden w-full text-left">
+                    <div className="font-semibold truncate text-foreground shrink-0">
+                      {roomName && <span className="opacity-60 font-medium">({roomName}) </span>}
+                      {title}
+                    </div>
+                    {division && (
+                      <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
+                        <Briefcase className="w-2.5 h-2.5 shrink-0" />
+                        <span className="truncate">{division}</span>
+                      </div>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="start" className="w-64 p-3 space-y-2 z-[60]">
+                  <p className="font-semibold text-sm">{title}</p>
+                  <div className="space-y-1 text-xs text-muted-foreground">
+                    {roomName && <p><span className="font-medium text-foreground">Room:</span> {roomName}</p>}
+                    {organizerName && <p><span className="font-medium text-foreground">Organizer:</span> {organizerName}</p>}
+                    {division && <p><span className="font-medium text-foreground">Division:</span> {division}</p>}
+                    {contact_number && <p><span className="font-medium text-foreground">Contact:</span> {contact_number}</p>}
+                    {notes && (
+                      <div className="pt-2 mt-2 border-t border-border/50">
+                        <p className="font-medium text-foreground mb-1">Notes:</p>
+                        <p className="line-clamp-3">{notes}</p>
+                      </div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            )
+          }}
           eventDidMount={(info: any) => {
             const hexColor = info.event.borderColor || '#FF6C0E'
             info.el.style.setProperty('--fc-event-border-color', hexColor)
