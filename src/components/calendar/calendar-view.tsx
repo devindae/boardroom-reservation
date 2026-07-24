@@ -460,24 +460,24 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
           eventMaxStack={2}
           eventContent={(eventInfo: any) => (
             <div className="px-1.5 py-1 text-xs leading-tight flex flex-col h-full overflow-hidden">
-              <div className="font-semibold truncate text-foreground">
+              <div className="font-semibold truncate text-foreground shrink-0">
                 {eventInfo.event.extendedProps.roomName && (
                   <span className="opacity-60 font-medium">({eventInfo.event.extendedProps.roomName}) </span>
                 )}
                 {eventInfo.event.title}
               </div>
-              <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+              <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
                 <User className="w-2.5 h-2.5 shrink-0" />
                 <span className="truncate">{eventInfo.event.extendedProps.organizerName}</span>
               </div>
               {eventInfo.event.extendedProps.contact_number && (
-                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
                   <Phone className="w-2.5 h-2.5 shrink-0" />
                   <span className="truncate">{eventInfo.event.extendedProps.contact_number}</span>
                 </div>
               )}
               {eventInfo.event.extendedProps.division && (
-                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5 shrink-0">
                   <Briefcase className="w-2.5 h-2.5 shrink-0" />
                   <span className="truncate">{eventInfo.event.extendedProps.division}</span>
                 </div>
