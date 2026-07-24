@@ -48,6 +48,9 @@ interface BookingDialogProps {
     endTime?: string // HH:mm
     notes?: string
     userId?: string
+    division?: string
+    contact_number?: string
+    organizerName?: string
   } | null
   onSave: () => void
   onDelete?: (id: string) => void
@@ -220,15 +223,95 @@ export function BookingDialog({
               </div>
               <div className="flex flex-col gap-1 text-left">
                 <DialogTitle className="text-xl font-semibold text-foreground tracking-tight">
-                  {isEditMode ? 'Edit Reservation' : 'New Meeting Booking'}
+                  {isEditMode ? (canModify ? 'Edit Reservation' : 'Meeting Details') : 'New Meeting Booking'}
                 </DialogTitle>
                 <p className="text-sm text-muted-foreground font-medium">
-                  Schedule a boardroom or meeting space
+                  {isEditMode && !canModify ? 'View booking information' : 'Schedule a boardroom or meeting space'}
                 </p>
               </div>
             </div>
           </DialogHeader>
 
+          {!canModify && isEditMode ? (
+            <div className="px-7 py-6 space-y-6">
+              <div className="space-y-1">
+                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Meeting Title</p>
+                 <p className="text-base font-semibold text-foreground">{title}</p>
+              </div>
+              
+              <div className="space-y-1">
+                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Room</p>
+                 <div className="flex items-center gap-2">
+                   <MapPin className="h-4 w-4 text-primary" />
+                   <span className="text-sm text-foreground">{rooms.find((r) => r.id === roomId)?.name} · {rooms.find((r) => r.id === roomId)?.location}</span>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-1">
+                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Date</p>
+                   <div className="flex items-center gap-2 text-sm text-foreground">
+                     <CalendarDays className="h-4 w-4 text-primary" />
+                     {date}
+                   </div>
+                 </div>
+                 <div className="space-y-1">
+                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Time</p>
+                   <div className="flex items-center gap-2 text-sm text-foreground">
+                     <Clock className="h-4 w-4 text-primary" />
+                     {startTime} - {endTime}
+                   </div>
+                 </div>
+              </div>
+
+              <div className="p-3 bg-secondary/30 border border-border/50 rounded-xl flex items-center gap-3">
+                 <Avatar className="h-9 w-9 border border-background shadow-sm">
+                   <AvatarFallback className="bg-primary text-primary-foreground font-medium text-xs">
+                     {initialValues?.organizerName?.[0]?.toUpperCase() || 'US'}
+                   </AvatarFallback>
+                 </Avatar>
+                 <div className="flex flex-col leading-tight">
+                   <span className="text-xs text-muted-foreground font-medium">Organizer</span>
+                   <span className="text-sm font-semibold text-foreground">
+                     {initialValues?.organizerName || 'Employee'}
+                   </span>
+                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Division</p>
+                  <div className="flex items-center gap-2 text-sm text-foreground">
+                    <Building2 className="h-4 w-4 text-primary" />
+                    {division || 'N/A'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Contact No.</p>
+                  <div className="flex items-center gap-2 text-sm text-foreground">
+                    <Phone className="h-4 w-4 text-primary" />
+                    {contactNumber || 'N/A'}
+                  </div>
+                </div>
+              </div>
+
+              {notes && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Notes</p>
+                  <div className="flex items-start gap-2 text-sm text-foreground bg-secondary/20 p-3 rounded-lg border border-border/30">
+                    <AlignLeft className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <span className="whitespace-pre-wrap">{notes}</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-6 mt-2 flex items-center justify-end border-t border-border/50">
+                <Button type="button" onClick={onClose} className="h-11 px-8 rounded-xl font-semibold bg-secondary text-foreground hover:bg-secondary/80">
+                  Close
+                </Button>
+              </div>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit} className="px-7 py-6 space-y-6">
             
             {/* Title */}
@@ -453,6 +536,7 @@ export function BookingDialog({
               </div>
             </div>
           </form>
+          )}
         </DialogContent>
       </Dialog>
 

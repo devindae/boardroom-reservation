@@ -219,6 +219,9 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
         endTime: endDate.toTimeString().slice(0, 5),
         notes: existing.notes || '',
         userId: existing.user_id,
+        division: (existing as any).division,
+        contact_number: (existing as any).contact_number,
+        organizerName: existing.profile?.name || existing.profile?.email?.split('@')[0] || 'Employee'
       })
       setIsDialogOpen(true)
     }
