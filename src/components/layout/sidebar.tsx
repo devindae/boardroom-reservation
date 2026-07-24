@@ -356,53 +356,9 @@ export function Sidebar({
           Ceylon Business Appliances (Pvt) Ltd. © 2026
         </p>
 
-        <div className="flex items-center gap-2 relative" ref={notificationsRef}>
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all relative"
-            >
-              <Bell className="w-4 h-4" />
-              {notifications.filter(n => !n.is_read).length > 0 && (
-                <span className="absolute top-1 right-1.5 w-2 h-2 bg-destructive rounded-full border border-card" />
-              )}
-            </button>
-            
-            {showNotifications && (
-              <div className="absolute bottom-full left-0 mb-2 w-64 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
-                <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notifications</span>
-                  <span className="text-[10px] bg-secondary px-1.5 rounded-full text-foreground">{notifications.filter(n => !n.is_read).length} new</span>
-                </div>
-                <div className="max-h-60 overflow-y-auto p-1 flex flex-col gap-1">
-                  {notifications.length === 0 ? (
-                    <div className="px-3 py-4 text-center text-xs text-muted-foreground">No notifications</div>
-                  ) : (
-                    notifications.map(n => (
-                      <div 
-                        key={n.id} 
-                        className={`px-3 py-2.5 rounded-lg text-xs flex gap-2 items-start transition-colors ${n.is_read ? 'opacity-60 hover:bg-secondary/40' : 'bg-primary/5 hover:bg-primary/10'}`}
-                      >
-                        <div className="flex-1 mt-0.5">
-                          <p className="text-foreground leading-snug">{n.message}</p>
-                          <p className="text-[9px] text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</p>
-                        </div>
-                        {!n.is_read && (
-                          <button onClick={() => markAsRead(n.id)} className="text-primary hover:text-primary/80 shrink-0" title="Mark as read">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
           {isAdmin && (
             <Link href={pathname === '/admin' ? '/' : '/admin'} className="flex-1">
               <button className={`w-full flex items-center justify-center gap-2 px-2.5 h-8 rounded-lg text-xs font-medium transition-all ${
@@ -427,6 +383,51 @@ export function Sidebar({
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-foreground truncate">{profile?.name || 'User'}</p>
             <p className="text-[10px] text-muted-foreground capitalize">{profile?.role?.replace('_', ' ') || 'user'}</p>
+          </div>
+          
+          {/* Notifications */}
+          <div className="relative shrink-0" ref={notificationsRef}>
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              title="Notifications"
+              className="h-7 w-7 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all relative"
+            >
+              <Bell className="w-4 h-4" />
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-destructive rounded-full border border-card" />
+              )}
+            </button>
+            
+            {showNotifications && (
+              <div className="absolute bottom-full right-0 mb-2 w-64 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
+                <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notifications</span>
+                  <span className="text-[10px] bg-secondary px-1.5 rounded-full text-foreground">{notifications.filter(n => !n.is_read).length} new</span>
+                </div>
+                <div className="max-h-60 overflow-y-auto p-1 flex flex-col gap-1">
+                  {notifications.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-xs text-muted-foreground">No notifications</div>
+                  ) : (
+                    notifications.map(n => (
+                      <div 
+                        key={n.id} 
+                        className={`px-3 py-2.5 rounded-lg text-xs flex gap-2 items-start transition-colors ${n.is_read ? 'opacity-60 hover:bg-secondary/40' : 'bg-primary/5 hover:bg-primary/10'}`}
+                      >
+                        <div className="flex-1 mt-0.5 text-left">
+                          <p className="text-foreground leading-snug whitespace-normal break-words">{n.message}</p>
+                          <p className="text-[9px] text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                        </div>
+                        {!n.is_read && (
+                          <button onClick={() => markAsRead(n.id)} className="text-primary hover:text-primary/80 shrink-0" title="Mark as read">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
           </div>
           <button
             onClick={() => signOut()}
