@@ -5,7 +5,6 @@ import { useAuth } from '@/lib/auth-context'
 import { Room, Profile } from '@/lib/types'
 import { isValidCompanyEmail } from '@/lib/validation'
 import { Navbar } from '@/components/layout/navbar'
-import { Sidebar } from '@/components/layout/sidebar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -267,15 +266,8 @@ export default function AdminPage() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar
-        rooms={rooms}
-        selectedRoomId="all"
-        onRoomSelect={() => {}}
-        onSearch={() => {}}
-        onNewBookingClick={() => {}}
-      />
-      <main className="flex-1 ml-[220px] overflow-y-auto">
-      <div className="space-y-6 pb-12 px-6 pt-4">
+      <main className="flex-1 overflow-y-auto">
+      <div className="max-w-7xl mx-auto space-y-6 pb-12 px-6 pt-6">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
