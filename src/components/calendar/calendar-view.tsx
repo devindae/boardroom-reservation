@@ -9,7 +9,7 @@ import { BookingDialog } from './booking-dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { ChevronLeft, ChevronRight, User } from 'lucide-react'
+import { ChevronLeft, ChevronRight, User, Phone, Briefcase } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface CalendarViewProps {
@@ -465,8 +465,20 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
               </div>
               <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
                 <User className="w-2.5 h-2.5 shrink-0" />
-                <span>{eventInfo.event.extendedProps.organizerName}</span>
+                <span className="truncate">{eventInfo.event.extendedProps.organizerName}</span>
               </div>
+              {eventInfo.event.extendedProps.contact_number && (
+                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                  <Phone className="w-2.5 h-2.5 shrink-0" />
+                  <span className="truncate">{eventInfo.event.extendedProps.contact_number}</span>
+                </div>
+              )}
+              {eventInfo.event.extendedProps.division && (
+                <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                  <Briefcase className="w-2.5 h-2.5 shrink-0" />
+                  <span className="truncate">{eventInfo.event.extendedProps.division}</span>
+                </div>
+              )}
             </div>
           )}
           eventDidMount={(info: any) => {
