@@ -346,7 +346,7 @@ export function BookingDialog({
                   <MapPin className="h-3.5 w-3.5" /> Room
                 </Label>
                 <Select value={roomId} onValueChange={(val) => val && setRoomId(val)} disabled={!canModify || isLoading}>
-                  <SelectTrigger className="h-11 bg-secondary/40 border-border/60 text-foreground rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all font-medium">
+                  <SelectTrigger className="w-full h-11 bg-secondary/40 border-border/60 text-foreground rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all font-medium">
                     <SelectValue placeholder="Select a room">
                       {selectedRoom ? `${selectedRoom.name} · ${selectedRoom.location}` : undefined}
                     </SelectValue>
@@ -430,7 +430,7 @@ export function BookingDialog({
                     <Building2 className="h-3.5 w-3.5" /> Division <span className="text-destructive">*</span>
                   </Label>
                   <Select value={division} onValueChange={(val) => val && setDivision(val)} disabled={!canModify || isLoading}>
-                    <SelectTrigger className="h-11 bg-secondary/40 border-border/60 text-foreground rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all font-medium">
+                    <SelectTrigger className="w-full h-11 bg-secondary/40 border-border/60 text-foreground rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all font-medium">
                       <SelectValue placeholder="Select division" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-border/50 shadow-2xl max-h-64">
