@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/theme-toggle'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Room, ReservationWithDetails, AppNotification } from '@/lib/types'
 import { DEFAULT_ROOM_COLORS } from '@/lib/constants'
 import { Search, Plus, Settings, LogOut, ChevronLeft, ChevronRight, Calendar, Clock, MapPin, User, X, Bell, CheckCircle2 } from 'lucide-react'
@@ -37,8 +38,6 @@ export function Sidebar({
 
   // Notifications state
   const [notifications, setNotifications] = useState<AppNotification[]>([])
-  const [showNotifications, setShowNotifications] = useState(false)
-  const notificationsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -61,15 +60,7 @@ export function Sidebar({
     }
   }, [profile])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotifications(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+
 
   const markAsRead = async (id: string) => {
     try {
@@ -176,49 +167,46 @@ export function Sidebar({
         </Link>
 
         {/* Notifications */}
-        <div className="relative shrink-0" ref={notificationsRef}>
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
+        <Popover>
+          <PopoverTrigger
             title="Notifications"
-            className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all relative"
+            className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-all relative shrink-0"
           >
             <Bell className="w-4 h-4" />
             {notifications.filter(n => !n.is_read).length > 0 && (
               <span className="absolute top-1 right-1.5 w-2 h-2 bg-destructive rounded-full border border-card" />
             )}
-          </button>
+          </PopoverTrigger>
           
-          {showNotifications && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-popover border border-border rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
-              <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notifications</span>
-                <span className="text-[10px] bg-secondary px-1.5 rounded-full text-foreground">{notifications.filter(n => !n.is_read).length} new</span>
-              </div>
-              <div className="max-h-60 overflow-y-auto p-1 flex flex-col gap-1">
-                {notifications.length === 0 ? (
-                  <div className="px-3 py-4 text-center text-xs text-muted-foreground">No notifications</div>
-                ) : (
-                  notifications.map(n => (
-                    <div 
-                      key={n.id} 
-                      className={`px-3 py-2.5 rounded-lg text-xs flex gap-2 items-start transition-colors ${n.is_read ? 'opacity-60 hover:bg-secondary/40' : 'bg-primary/5 hover:bg-primary/10'}`}
-                    >
-                      <div className="flex-1 mt-0.5 text-left">
-                        <p className="text-foreground leading-snug whitespace-normal break-words">{n.message}</p>
-                        <p className="text-[9px] text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</p>
-                      </div>
-                      {!n.is_read && (
-                        <button onClick={() => markAsRead(n.id)} className="text-primary hover:text-primary/80 shrink-0" title="Mark as read">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+          <PopoverContent align="start" side="bottom" sideOffset={4} className="w-64 p-0 rounded-xl overflow-hidden shadow-2xl border border-border bg-popover z-50">
+            <div className="px-3 py-2 border-b border-border/50 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Notifications</span>
+              <span className="text-[10px] bg-secondary px-1.5 rounded-full text-foreground">{notifications.filter(n => !n.is_read).length} new</span>
             </div>
-          )}
-        </div>
+            <div className="max-h-60 overflow-y-auto p-1 flex flex-col gap-1">
+              {notifications.length === 0 ? (
+                <div className="px-3 py-4 text-center text-xs text-muted-foreground">No notifications</div>
+              ) : (
+                notifications.map(n => (
+                  <div 
+                    key={n.id} 
+                    className={`px-3 py-2.5 rounded-lg text-xs flex gap-2 items-start transition-colors ${n.is_read ? 'opacity-60 hover:bg-secondary/40' : 'bg-primary/5 hover:bg-primary/10'}`}
+                  >
+                    <div className="flex-1 mt-0.5 text-left">
+                      <p className="text-foreground leading-snug whitespace-normal break-words">{n.message}</p>
+                      <p className="text-[9px] text-muted-foreground mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                    </div>
+                    {!n.is_read && (
+                      <button onClick={() => markAsRead(n.id)} className="text-primary hover:text-primary/80 shrink-0" title="Mark as read">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="px-3 space-y-4 flex-1">
