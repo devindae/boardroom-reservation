@@ -65,11 +65,19 @@ export async function DELETE(
     }
 
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Only Super Admins can delete users' }, { status: 403 })
+    if (profile?.role !== 'super_admin' && profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Only Administrators can delete users' }, { status: 403 })
     }
 
     const adminClient = createAdminClient()
+    
+    // If the requester is a regular admin, they cannot delete a super_admin
+    if (profile?.role === 'admin') {
+      const { data: targetUser } = await adminClient.from('profiles').select('role').eq('id', id).single()
+      if (targetUser?.role === 'super_admin') {
+        return NextResponse.json({ error: 'Administrators cannot delete Super Admins' }, { status: 403 })
+      }
+    }
     
     // Delete from auth.users (cascades to public.profiles)
     const { error: authError } = await adminClient.auth.admin.deleteUser(id)

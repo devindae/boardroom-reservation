@@ -292,12 +292,10 @@ export default function AdminPage() {
       {/* Tabs */}
       <Tabs defaultValue={isSuperAdmin ? 'users' : 'rooms'} className="w-full">
         <TabsList className="bg-muted p-1 border border-border">
-          {isSuperAdmin && (
-            <TabsTrigger value="users" className="gap-2 text-xs font-semibold">
-              <Users className="w-4 h-4 text-[#6F1258] dark:text-[#FF8A3D]" />
-              User Management ({users.length})
-            </TabsTrigger>
-          )}
+          <TabsTrigger value="users" className="gap-2 text-xs font-semibold">
+            <Users className="w-4 h-4 text-[#6F1258] dark:text-[#FF8A3D]" />
+            User Management ({isSuperAdmin ? users.length : users.filter(u => u.role !== 'super_admin').length})
+          </TabsTrigger>
           <TabsTrigger value="rooms" className="gap-2 text-xs font-semibold">
             <DoorClosed className="w-4 h-4 text-[#313773] dark:text-indigo-400" />
             Meeting Rooms ({rooms.length})
@@ -305,8 +303,7 @@ export default function AdminPage() {
         </TabsList>
 
         {/* User Management Tab */}
-        {isSuperAdmin && (
-          <TabsContent value="users" className="space-y-4 pt-4">
+        <TabsContent value="users" className="space-y-4 pt-4">
           <Card className="border border-border shadow-xs">
             <CardHeader className="flex flex-row items-center justify-between pb-4">
               <div>
@@ -338,7 +335,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((u) => (
+                    {users.filter(u => isSuperAdmin || u.role !== 'super_admin').map((u) => (
                       <TableRow key={u.id}>
                         <TableCell>
                           <div className="flex flex-col">
@@ -355,6 +352,7 @@ export default function AdminPage() {
                                 handleRoleChange(u.id, val)
                               }
                             }}
+                            disabled={!isSuperAdmin}
                           >
                             <SelectTrigger className="h-8 w-32 text-xs bg-background">
                               <SelectValue />
@@ -390,7 +388,6 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        )}
 
         {/* Room Management Tab */}
         <TabsContent value="rooms" className="space-y-4 pt-4">
@@ -497,7 +494,7 @@ export default function AdminPage() {
               <Label htmlFor="inviteRole" className="text-xs font-semibold">
                 Assigned Role
               </Label>
-              <Select value={inviteRole} onValueChange={(v) => { if (v === 'user' || v === 'admin' || v === 'super_admin') setInviteRole(v as 'user'|'admin'|'super_admin') }}>
+              <Select value={inviteRole} onValueChange={(v) => { if (v === 'user' || v === 'admin' || v === 'super_admin') setInviteRole(v as 'user'|'admin'|'super_admin') }} disabled={!isSuperAdmin}>
                 <SelectTrigger id="inviteRole" className="w-full">
                   <SelectValue />
                 </SelectTrigger>

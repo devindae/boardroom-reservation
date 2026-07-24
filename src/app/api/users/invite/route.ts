@@ -15,12 +15,16 @@ export async function POST(request: Request) {
     }
 
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Only Super Admins can invite users' }, { status: 403 })
+    if (profile?.role !== 'super_admin' && profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Only Administrators can invite users' }, { status: 403 })
     }
 
     const body = await request.json()
     const { email, role = 'user', name = '' } = body
+
+    if (profile?.role === 'admin' && role !== 'user') {
+      return NextResponse.json({ error: 'Only Super Admins can assign elevated roles' }, { status: 403 })
+    }
 
     if (!['user', 'admin', 'super_admin'].includes(role)) {
       return NextResponse.json({ error: 'Invalid role specified' }, { status: 400 })
