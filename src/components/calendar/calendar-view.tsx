@@ -126,8 +126,26 @@ export function CalendarView({ rooms, initialReservations = [], searchQuery = ''
 
     }
 
+    const handleNavigateDate = (e: any) => {
+      const { date } = e.detail
+      
+      if (calendarRef.current) {
+        const api = calendarRef.current.getApi()
+        api.gotoDate(date)
+        if (currentView === 'dayGridMonth') {
+          api.changeView('timeGridWeek')
+          setCurrentView('timeGridWeek')
+        }
+      }
+    }
+
     window.addEventListener('focus-reservation', handleFocusReservation)
-    return () => window.removeEventListener('focus-reservation', handleFocusReservation)
+    window.addEventListener('navigate-date', handleNavigateDate)
+    
+    return () => {
+      window.removeEventListener('focus-reservation', handleFocusReservation)
+      window.removeEventListener('navigate-date', handleNavigateDate)
+    }
   }, [reservations, currentView])
 
   // Change Calendar View

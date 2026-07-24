@@ -283,10 +283,15 @@ export function Sidebar({
             {calCells.map((d, i) => (
               <div key={i} className="flex items-center justify-center py-0.5">
                 {d ? (
-                  <span className={`text-[11px] w-6 h-6 flex items-center justify-center rounded-full font-medium transition-colors ${
+                  <span 
+                    onClick={() => {
+                      const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+                      window.dispatchEvent(new CustomEvent('navigate-date', { detail: { date: dateStr } }))
+                    }}
+                    className={`text-[11px] w-6 h-6 flex items-center justify-center rounded-full font-medium cursor-pointer transition-colors ${
                     isCurrentMonth && d === todayDate
                       ? 'bg-primary text-primary-foreground font-bold'
-                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer'
+                      : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                   }`}>
                     {d}
                   </span>
